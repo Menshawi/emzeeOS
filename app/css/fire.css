@@ -1,0 +1,16 @@
+/* The fireplace screen saver: the fire video fills the screen, fading in over the sky (which stops while it shows);
+   the dimmer and the clock stay above it. */
+#fire { position: absolute; inset: 0; opacity: 0; visibility: hidden; transition: opacity 1.6s ease, visibility 0s 1.6s; background: #050303; }
+#fire.on { opacity: 1; visibility: visible; transition: opacity 1.6s ease, visibility 0s; }
+#fire video { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px; object-fit: cover; }
+/* two copies of the video crossfade at the loop point (fire.js): the one in front fades in over the other */
+#fire video { opacity: 0; }
+#fire video.front { z-index: 2; }
+
+/* while the fireplace shows, the sky underneath stops drawing */
+body.fire #sky { visibility: hidden; }
+
+/* over the fire, the clock shrinks to a small, faint time in the corner: no date, weather or sky lines */
+body.fire #ambient .amb-time { font-size: 64px; letter-spacing: -2px; opacity: 0.42; text-shadow: 0 2px 16px rgba(0, 0, 0, 0.5); }
+body.fire #ambient .amb-rule, body.fire #ambient .amb-sub, body.fire #ambient .amb-sky { display: none; }
+body.fire #ambient .amb-time.tick { animation: none; }

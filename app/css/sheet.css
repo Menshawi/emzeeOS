@@ -1,0 +1,84 @@
+/* Inputs sheet: floats over Home, which stays visible behind a heavy blur. */
+.sheet {
+  position: absolute; inset: 0; z-index: 10;
+  background: rgba(4, 5, 12, 0.55);
+  -webkit-backdrop-filter: blur(48px) saturate(130%);
+  backdrop-filter: blur(48px) saturate(130%);
+  opacity: 0; pointer-events: none;
+  transition: opacity var(--t-sheet) ease;
+}
+.no-blur .sheet { -webkit-backdrop-filter: none; backdrop-filter: none; background: rgba(4, 5, 12, 0.86); }
+.sheet.open { opacity: 1; pointer-events: auto; }
+
+.sheet-inner {
+  position: absolute; inset: 0; padding: 0 var(--safe-x);
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 64px;
+  transform: translateY(24px);
+  transition: transform var(--t-sheet) var(--ease-lift);
+}
+.sheet.open .sheet-inner { transform: translateY(0); }
+
+.sheet-head { display: flex; flex-direction: column; align-items: center; gap: 12px; }
+.sheet-title { font-size: 64px; font-weight: 600; letter-spacing: -2px; }
+.sheet-sub { font-size: 26px; color: rgba(245, 245, 247, 0.66); }
+
+/* as many cards as the TV has inputs, always on screen: they share the safe width (shrinking from 296 px when
+   there are more than five), with room at the ends for the focused card to grow */
+.cards { display: flex; gap: 28px; align-items: center; justify-content: center; width: 100%; padding: 30px 24px; box-sizing: border-box; }
+.card {
+  position: relative;
+  flex: 0 1 296px; min-width: 0; height: 340px; box-sizing: border-box;
+  padding: 36px 32px 32px;
+  border: none; border-radius: var(--r-card);
+  overflow: hidden;
+  display: flex; flex-direction: column; justify-content: space-between; align-items: flex-start;
+  text-align: left;
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--text);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.08);
+  /* the lift animates; the white fill fades in on a layer of its own (::before), so no repaint per frame */
+  transition: transform 220ms var(--ease-lift);
+  outline: none;
+}
+.card::after {
+  content: ""; position: absolute; inset: 0; border-radius: inherit; pointer-events: none;
+  background: linear-gradient(150deg, rgba(255, 255, 255, 0.12) 0%, rgba(255, 255, 255, 0) 40%);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.18);
+}
+.card .chip {
+  width: 96px; height: 96px; border-radius: 30px;
+  display: flex; align-items: center; justify-content: center;
+  background: rgba(255, 255, 255, 0.08);
+}
+.card .chip svg { width: 56px; height: 56px; }
+.card .label { display: flex; flex-direction: column; gap: 8px; max-width: 100%; }
+.card .detail { max-width: 100%; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+/* a long device name ("PS5 Game Console") takes two lines before it shortens */
+.card .name { max-width: 100%; overflow: hidden; line-height: 1.1; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+.card .name { font-size: 34px; font-weight: 600; letter-spacing: -0.6px; }
+.card .detail { display: flex; align-items: center; gap: 10px; font-size: 22px; opacity: 0.72; }
+.card .live { width: 10px; height: 10px; border-radius: 5px; background: #30D158; animation: pulse 2.4s ease-in-out infinite; }
+@keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: .35; } }
+.card.off { opacity: 0.45; }
+
+.card::before {
+  content: ""; position: absolute; inset: 0; border-radius: inherit; pointer-events: none;
+  background: var(--focus); opacity: 0; transition: opacity 220ms ease;
+}
+.card > * { position: relative; }
+.card.focused::before { opacity: 1; }
+.card.focused {
+  color: var(--on-focus);
+  transform: translateY(-20px) scale(1.07);
+  box-shadow: 0 40px 80px rgba(0, 0, 0, 0.5);
+}
+.card.focused::after { background: linear-gradient(150deg, rgba(255, 255, 255, 0.5) 0%, rgba(255, 255, 255, 0) 40%); }
+.card.focused .chip { background: rgba(10, 10, 11, 0.07); }
+
+.hints { display: flex; gap: 40px; font-size: 22px; color: rgba(245, 245, 247, 0.55); }
+.hints span { display: flex; align-items: center; gap: 12px; }
+.hints kbd {
+  font-family: inherit; font-size: 18px; font-weight: 600;
+  padding: 4px 14px; border-radius: 999px;
+  box-shadow: inset 0 0 0 1.5px rgba(245, 245, 247, 0.35);
+}

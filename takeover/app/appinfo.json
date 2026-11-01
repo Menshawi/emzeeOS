@@ -1,0 +1,13 @@
+{
+  "id": "com.emzee.home",
+  "version": "0.6.5",
+  "vendor": "emzee",
+  "type": "web",
+  "main": "index.html",
+  "title": "emzee Setup",
+  "icon": "icon.png",
+  "largeIcon": "largeIcon.png",
+  "bgColor": "#0A0A0B",
+  "resolution": "1920x1080",
+  "disableBackHistoryAPI": true
+}

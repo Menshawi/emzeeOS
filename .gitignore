@@ -1,0 +1,9 @@
+# local tooling (holds machine-specific paths and permissions)
+.claude/
+# build output
+dist/
+# the fireplace video: Pexels licence, not redistributed here; put your own copy at media/fireplace.mp4 to bundle it
+media/*.mp4
+.DS_Store
+._*
+__pycache__/

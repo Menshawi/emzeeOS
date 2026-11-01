@@ -1,0 +1,7 @@
+{
+  "id": "com.emzee.home.service",
+  "description": "emzee Home takeover (runs elevated through Homebrew Channel)",
+  "services": [
+    { "name": "com.emzee.home.service" }
+  ]
+}

@@ -1,0 +1,25 @@
+/* Graphite: one typeface, two greys, white for focus. Values come from the design canvas. */
+:root {
+  --ground: #0A0A0B;
+  --sheet: #1C1C1E;
+  --tile: rgba(255, 255, 255, 0.08);
+  --glass: rgba(255, 255, 255, 0.07);
+  --glass-edge: inset 0 1px 0 rgba(255, 255, 255, 0.14);
+  --focus: #F5F5F7;
+  --text: #F5F5F7;
+  --text-2: #A1A1A6;
+  --text-3: #8E8E93;
+  --on-focus: #0A0A0B;
+
+  --font: Inter, "LG Smart UI", "Helvetica Neue", system-ui, sans-serif;
+
+  --safe-y: 88px;
+  --safe-x: 112px;
+  --r-tile: 34px;
+  --r-card: 48px;
+  --r-dock: 60px;
+
+  --ease-lift: cubic-bezier(.2, .8, .2, 1);
+  --t-focus: 200ms;
+  --t-sheet: 240ms;
+}

@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=1920, height=1080">
+<title>emzee Setup</title>
+<link rel="stylesheet" href="setup.css">
+</head>
+<body>
+<main id="stage">
+  <h1>emzee Setup</h1>
+  <p class="lede">Makes emzee your TV's Home screen, or gives LG's Home back. It runs as root through Homebrew Channel.</p>
+
+  <dl id="facts">
+    <div><dt>Root</dt><dd id="f-root">Checking…</dd></div>
+    <div><dt>emzee as Home</dt><dd id="f-state">Checking…</dd></div>
+    <div><dt>Version</dt><dd id="f-version">–</dd></div>
+    <div><dt>Location</dt><dd id="f-loc">–</dd></div>
+  </dl>
+
+  <div id="actions">
+    <button id="enable" data-act="enable">Make emzee my Home</button>
+    <button id="disable" data-act="disable">Give LG's Home back</button>
+    <button id="uninstall" data-act="uninstall">Remove emzee completely</button>
+    <button id="where" data-act="location">Change location</button>
+    <button id="logs" data-act="logs">Show log</button>
+  </div>
+
+  <p id="note" class="note"></p>
+  <pre id="log"></pre>
+
+  <p class="foot">If emzee ever fails to show within 30 seconds, LG's Home comes back on its own for that boot.
+    You can always open this app from emzee's All apps.</p>
+</main>
+<section id="logview" aria-hidden="true">
+  <div class="lv-head">
+    <h2>Log</h2>
+    <div class="lv-tabs" id="lv-tabs"></div>
+    <span class="lv-hint">← → switch log · ↑ ↓ scroll · Back closes</span>
+  </div>
+  <pre id="lv-body"></pre>
+</section>
+<section id="locview" aria-hidden="true">
+  <div class="lv-head">
+    <h2>Location</h2>
+    <span class="lv-hint">Type your town and press OK · ↑ ↓ choose · Back closes</span>
+  </div>
+  <p class="loc-now" id="loc-now"></p>
+  <input id="loc-q" type="text" placeholder="Search for your town" autocomplete="off" spellcheck="false">
+  <div class="loc-list" id="loc-list"></div>
+</section>
+<script src="setup.js"></script>
+</body>
+</html>

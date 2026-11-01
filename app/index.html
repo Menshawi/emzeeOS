@@ -1,0 +1,163 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=1920, height=1080">
+<title>emzee</title>
+<link rel="stylesheet" href="css/tokens.css">
+<link rel="stylesheet" href="css/sky.css">
+<link rel="stylesheet" href="css/home.css">
+<link rel="stylesheet" href="css/sheet.css">
+<link rel="stylesheet" href="css/arrange.css">
+<link rel="stylesheet" href="css/idle.css">
+<link rel="stylesheet" href="css/settings.css">
+<link rel="stylesheet" href="css/wx.css">
+<link rel="stylesheet" href="css/fire.css">
+<script>
+// First paint: the sky's colours for this hour before any other script runs; sky.js fades the real sky in over it.
+// Uses the last real sunrise and sunset sky.js saw, else 07:00 and 17:30 (same phase rules as sky.js).
+(function () {
+  var r = 7, s = 17.5, n = new Date(), h = n.getHours() + n.getMinutes() / 60, m = /[?&]phase=(dawn|day|dusk|night)\b/.exec(location.search);
+  try { var t = JSON.parse(localStorage.getItem('emzee.sun') || 'null'); if (t && t.length === 2) { r = t[0]; s = t[1]; } } catch (e) { /* storage blocked */ }
+  document.documentElement.setAttribute('data-early', m ? m[1] : h < r - 0.6 || h >= s + 0.9 ? 'night' : h < r + 1.1 ? 'dawn' : h < s - 0.8 ? 'day' : 'dusk');
+})();
+</script>
+</head>
+<body>
+<div id="stage">
+
+  <div id="sky" aria-hidden="true">
+    <div id="stars"></div>
+    <div id="horizon"></div>
+    <div id="sun"></div>
+    <div id="moon"><div class="halo"></div><div class="crescent"></div></div>
+    <div id="clouds"></div>
+    <div id="fall" aria-hidden="true"></div>
+    <div id="flash" aria-hidden="true"></div>
+    <div id="meteors"></div>
+    <div id="photo"></div>
+    <div class="vignette"></div>
+  </div>
+
+  <!-- the fireplace screen saver (fire.js): a real fire on video, once the TV has it -->
+  <div id="fire" aria-hidden="true">
+    <video id="fire-video" playsinline preload="none"></video>
+  </div>
+
+  <div id="dim" aria-hidden="true"></div>
+
+  <div id="ambient" aria-hidden="true">
+    <div class="amb-time" data-clock="time"></div>
+    <div class="amb-rule"></div>
+    <div class="amb-sub"><span data-clock="date"></span><i class="dot"></i><span data-weather="summary"></span></div>
+    <div class="amb-sky"><span class="amb-icon" id="amb-icon"></span><span id="amb-sky"></span></div>
+  </div>
+
+  <!-- Home and All apps stacked in one tall deck: Down slides it up a screen, pushing Home out the top -->
+  <div id="deck">
+  <main id="home">
+    <header class="top">
+      <div class="clock">
+        <div class="date" data-clock="date"></div>
+        <div class="time" data-clock="time"></div>
+      </div>
+      <div class="top-right">
+      <button class="gear glass" id="gear" aria-label="Settings" tabindex="-1"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15.2a3.2 3.2 0 1 0 0-6.4 3.2 3.2 0 0 0 0 6.4z"/><path d="M19.4 13.5a7.6 7.6 0 0 0 0-3l2-1.6-2-3.4-2.4 1a7.7 7.7 0 0 0-2.6-1.5L14 2.5h-4l-.4 2.5A7.7 7.7 0 0 0 7 6.5l-2.4-1-2 3.4 2 1.6a7.6 7.6 0 0 0 0 3l-2 1.6 2 3.4 2.4-1a7.7 7.7 0 0 0 2.6 1.5l.4 2.5h4l.4-2.5a7.7 7.7 0 0 0 2.6-1.5l2.4 1 2-3.4z"/></svg></button>
+      <div class="weather glass" id="weather">
+        <div class="now">
+          <div class="cond">
+            <div class="cond-name" data-weather="condition"></div>
+            <div class="cond-range" data-weather="range"></div>
+          </div>
+          <div class="temp" data-weather="temp"></div>
+        </div>
+        <div class="sunline" data-weather="sunline"></div>
+        <div class="hours" id="hours"></div>
+      </div>
+      </div>
+    </header>
+
+    <div class="grow"></div>
+
+    <section class="bottom">
+      <div class="spotlight">
+        <div class="spot-name" id="spot-name"></div>
+        <div class="spot-sub" id="spot-sub"></div>
+      </div>
+      <div class="dock" id="dock" role="menubar" aria-label="Pinned apps and inputs"></div>
+      <button class="dock-more" id="dock-more" tabindex="-1"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>All apps</button>
+    </section>
+  </main>
+
+  <section id="allapps" aria-label="All apps" aria-hidden="true">
+    <header class="aa-head">
+      <div class="aa-titles">
+        <div class="aa-title">All apps</div>
+        <div class="aa-sub" id="aa-sub"></div>
+      </div>
+      <button class="aa-toggle" id="aa-toggle" aria-pressed="false">
+        <span class="aa-toggle-label">Arrange</span>
+        <span class="aa-switch"><i></i></span>
+      </button>
+    </header>
+    <div class="aa-view">
+      <div class="aa-content" id="aa-content"></div>
+    </div>
+    <div class="aa-toast" id="aa-toast" aria-live="polite"></div>
+    <div class="hints aa-hints" id="aa-hints"></div>
+  </section>
+  </div>
+
+  <!-- the weather page: comes down from the top, where the weather tile is (wxpage.js) -->
+  <section id="wx" aria-hidden="true" aria-label="Weather">
+    <div class="wx-body" id="wx-body"></div>
+    <div class="hints wx-hints" id="wx-hints"></div>
+    <div class="wx-credit">Weather data by Open-Meteo.com</div>
+  </section>
+
+  <!-- Settings: a panel from the right over a dimmed Home (settings.js) -->
+  <div id="settings" aria-hidden="true">
+    <div class="st-scrim"></div>
+    <aside class="st-panel" role="dialog" aria-label="Settings">
+      <header class="st-head">
+        <div class="st-title" id="st-title">Settings</div>
+        <div class="st-sub" id="st-sub"></div>
+      </header>
+      <div class="st-body" id="st-body"></div>
+      <div class="hints st-hints" id="st-hints"></div>
+    </aside>
+  </div>
+
+  <div id="sheet" class="sheet" role="dialog" aria-label="Inputs" aria-hidden="true">
+    <div class="sheet-inner">
+      <div class="sheet-head">
+        <div class="sheet-title">Inputs</div>
+        <div class="sheet-sub" id="sheet-sub"></div>
+      </div>
+      <div class="cards" id="cards"></div>
+      <div class="hints">
+        <span><kbd>OK</kbd>Switch</span>
+        <span><kbd>Hold OK</kbd>Rename or hide</span>
+        <span><kbd>Back</kbd>Close</span>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script src="js/util.js"></script>
+<script src="js/api.js"></script>
+<script src="js/clock.js"></script>
+<script src="js/sky.js"></script>
+<script src="js/weather.js"></script>
+<script src="js/focus.js"></script>
+<script src="js/dock.js"></script>
+<script src="js/inputs.js"></script>
+<script src="js/arrange.js"></script>
+<script src="js/idle.js"></script>
+<script src="js/settings.js"></script>
+<script src="js/wxpage.js"></script>
+<script src="js/fire.js"></script>
+<script src="js/main.js"></script>
+</body>
+</html>

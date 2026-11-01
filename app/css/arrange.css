@@ -1,0 +1,167 @@
+/* All apps. Home and this screen are stacked in #deck; Down slides the deck up one screen, so Home leaves
+   through the top as All apps rises from the bottom. A near-solid surface (the sky only glows through at the
+   very top), every section on one ten-column grid, and only transform and opacity animate. */
+#deck {
+  position: absolute; inset: 0;
+  transition: transform 640ms cubic-bezier(.22, .9, .24, 1);
+  will-change: transform;   /* its own layer from the start, so the slide never waits on layer setup */
+}
+body.apps #deck { transform: translateY(-1080px); }
+
+#allapps {
+  position: absolute; left: 0; top: 1080px; width: 1920px; height: 1080px;
+  contain: layout paint;   /* changes in here never make the browser re-lay-out Home, and the other way round */
+  /* Its own layer always, so what warm() painted is kept. Transform only: will-change on opacity, or rounded
+     corners clipping the layers inside it, make the TV composite All apps off-screen first on every frame of
+     the slide (measured: 49 fps instead of 60). So square corners, and no overflow clip beyond contain. */
+  will-change: transform;
+  background:
+    linear-gradient(180deg, rgba(8, 9, 14, 0.78) 0, rgba(8, 9, 14, 0.94) 200px, #08090E 520px);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.10), 0 -30px 80px rgba(0, 0, 0, 0.45);
+}
+/* a faint cool glow behind the header, so the surface isn't flat black */
+#allapps::before {
+  content: ""; position: absolute; left: 50%; top: -420px; width: 1600px; height: 760px; margin-left: -800px;
+  border-radius: 50%; pointer-events: none;
+  background: radial-gradient(closest-side, rgba(120, 140, 255, 0.10), rgba(120, 140, 255, 0));
+}
+
+/* everything lines up on the grid's 1590 px */
+.aa-head, .aa-view, .aa-hints { position: absolute; left: calc(50% - 795px); width: 1590px; }
+
+.aa-head {
+  top: 96px;
+  display: flex; align-items: flex-end; justify-content: space-between;
+}
+.aa-titles { display: flex; flex-direction: column; gap: 10px; }
+.aa-title { font-size: 60px; font-weight: 600; letter-spacing: -1.8px; line-height: 1; }
+.aa-sub { font-size: 25px; color: var(--text-2); min-height: 32px; }
+
+/* the Arrange switch */
+.aa-toggle {
+  display: flex; align-items: center; gap: 18px;
+  padding: 14px 16px 14px 28px; border: 0; border-radius: 999px;
+  background: rgba(255, 255, 255, 0.07); color: var(--text);
+  font-size: 24px; font-weight: 500;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.08);
+  transition: transform var(--t-focus) var(--ease-lift);
+  outline: none;
+}
+.aa-toggle.focused { transform: scale(1.06); box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.08), 0 0 0 3px var(--focus); }
+.aa-switch { position: relative; width: 64px; height: 36px; border-radius: 18px; background: rgba(255, 255, 255, 0.16); overflow: hidden; }
+.aa-switch::before { content: ""; position: absolute; inset: 0; background: var(--focus); opacity: 0; transition: opacity 200ms ease; }
+.aa-switch i {
+  position: absolute; left: 4px; top: 4px; width: 28px; height: 28px; border-radius: 50%;
+  background: var(--focus); box-shadow: 0 2px 6px rgba(0, 0, 0, 0.35);
+  transition: transform 260ms var(--ease-lift);
+}
+.aa-toggle.on .aa-switch::before { opacity: 1; }
+.aa-toggle.on .aa-switch i { transform: translateX(28px); background: var(--ground); }
+
+/* the scrolling area. Its soft top and bottom edges are two small gradient strips in the surface colour, not a
+   mask: a mask makes the TV re-composite the whole area on every frame of every scroll or slide. */
+.aa-view {
+  top: 236px; height: 700px; overflow: hidden;
+  /* 48 px of room each side, so a focused tile in the first or last column (lifted, scaled, ringed) isn't cut off */
+  left: calc(50% - 843px); width: 1686px; padding: 0 48px; box-sizing: border-box;
+  /* rises a little behind the surface as the deck arrives, for depth: one layer, transform only */
+  transform: translateY(80px);
+  transition: transform 820ms cubic-bezier(.2, .85, .25, 1);
+  will-change: transform;
+}
+#allapps.in .aa-view { transform: none; }
+.aa-view::before, .aa-view::after { content: ""; position: absolute; left: -40px; right: -40px; z-index: 3; pointer-events: none; }
+.aa-view::before { top: 0; height: 34px; background: linear-gradient(#08090E, rgba(8, 9, 14, 0)); }
+.aa-view::after { bottom: 0; height: 70px; background: linear-gradient(rgba(8, 9, 14, 0), #08090E); }
+.aa-content { position: relative; padding-top: 34px; transition: transform 380ms var(--ease-lift); will-change: transform; }
+
+.aa-sec { margin-bottom: 40px; }
+.aa-label {
+  display: flex; align-items: baseline; gap: 16px; margin: 0 0 36px 2px;
+  font-size: 19px; font-weight: 600; letter-spacing: 2.4px; text-transform: uppercase; color: var(--text-3);
+}
+.aa-label em { font-style: normal; font-weight: 500; letter-spacing: 1px; opacity: 0.7; }
+
+.aa-grid { display: grid; grid-template-columns: repeat(10, 132px); column-gap: 30px; row-gap: 30px; }
+
+.aa-item { position: relative; width: 132px; display: flex; flex-direction: column; align-items: center; gap: 16px; transition: transform 340ms var(--ease-lift); }
+.aa-item.born { animation: aa-born 420ms var(--ease-lift) both; }
+@keyframes aa-born { from { opacity: 0; transform: scale(0.6); } to { opacity: 1; transform: none; } }
+.aa-item .lift { position: relative; width: 132px; height: 132px; transition: transform 240ms var(--ease-lift); }
+.aa-item .tile { width: 132px; height: 132px; border-radius: 32px; opacity: 0.88; box-shadow: none; }   /* a blurred shadow per tile costs the TV a lot to draw and can't be seen on this near-black surface */
+.aa-item .tile .glyph { font-size: 54px; }
+.aa-item .tile svg { width: 48px; height: 48px; }
+.aa-item .ring {
+  position: absolute; inset: -8px; border-radius: 40px; pointer-events: none;
+  box-shadow: 0 0 0 3px rgba(245, 245, 247, 0.95), 0 0 30px rgba(200, 210, 255, 0.18);
+  opacity: 0; transition: opacity 200ms ease;
+}
+.aa-item .cap {
+  max-width: 156px; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; text-align: center;
+  font-size: 21px; font-weight: 500; color: var(--text-2); opacity: 0.8;
+  transition: opacity 200ms ease, transform 240ms var(--ease-lift);
+}
+
+.aa-item.focused .lift { transform: translateY(-8px) scale(1.1); }
+.aa-item.focused .ring, .aa-item.focused .tile { opacity: 1; }
+.aa-item.focused .cap { opacity: 1; color: var(--text); transform: translateY(4px); }
+.aa-item.focused .tile .sheen { opacity: 1; animation: sheen 5s ease-in-out 1.6s infinite; }
+
+/* carried in Arrange: lifted higher, tilted, the ring warm */
+.aa-item.carry .lift { transform: translateY(-20px) scale(1.16) rotate(-3deg); }
+.aa-item.carry .ring { box-shadow: 0 0 0 3px #FFD9A8, 0 0 40px rgba(255, 200, 140, 0.28); }
+.aa-item.carry .tile .sheen { opacity: 0; animation: none; }
+
+/* pinned elsewhere: a small white pin on the corner */
+.aa-item .badge {
+  position: absolute; top: -9px; right: -9px; z-index: 2;
+  width: 36px; height: 36px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  background: var(--focus); color: var(--on-focus);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.5);
+}
+.aa-item .badge svg { width: 19px; height: 19px; }
+
+/* what's left of the ten */
+.aa-item.empty .slot {
+  width: 132px; height: 132px; border-radius: 32px; box-sizing: border-box;
+  display: flex; align-items: center; justify-content: center;
+  border: 2px dashed rgba(255, 255, 255, 0.12); color: rgba(255, 255, 255, 0.18);
+}
+.aa-item.empty .slot svg { width: 34px; height: 34px; }
+.aa-item.empty.next .slot { border-color: rgba(255, 255, 255, 0.26); color: rgba(255, 255, 255, 0.4); }
+.aa-item.empty .cap { font-size: 18px; color: var(--text-3); opacity: 0.8; }
+
+/* in Arrange, inputs can be pinned but not moved: they rest dimmer */
+#allapps.arranging .aa-item.input:not(.focused) { opacity: 0.4; }
+
+/* a short confirmation, low in the middle */
+.aa-toast {
+  position: absolute; left: 50%; bottom: 140px;
+  display: flex; align-items: center; gap: 14px;
+  padding: 18px 32px; border-radius: 999px;
+  background: rgba(34, 34, 40, 0.97); box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1), 0 24px 60px rgba(0, 0, 0, 0.55);
+  font-size: 24px; font-weight: 500; white-space: nowrap;
+  opacity: 0; transform: translate(-50%, 24px);
+  transition: opacity 220ms ease, transform 320ms var(--ease-lift);
+  pointer-events: none;
+}
+.aa-toast.show { opacity: 1; transform: translate(-50%, 0); }
+.aa-toast .pin { display: flex; width: 24px; height: 24px; }
+.aa-toast .pin svg { width: 100%; height: 100%; }
+
+.aa-hints { bottom: 64px; }
+
+
+/* Home's way in: under the dock */
+.dock-more {
+  align-self: flex-start; margin: -8px 0 0 30px; padding: 6px 10px;
+  display: flex; align-items: center; gap: 10px;
+  background: none; border: 0; outline: none;
+  font-size: 22px; font-weight: 500; color: rgba(245, 245, 247, 0.55);
+}
+.dock-more svg { width: 24px; height: 24px; }
+
+/* arrange.js warm(): brought on screen for two frames, too faint to see, so the first real slide is already painted */
+#allapps.warm { transform: translateY(-1080px); opacity: 0.01; }
+#allapps.warm .aa-view { transform: none; transition: none; }

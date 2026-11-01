@@ -1,0 +1,102 @@
+/* Sky layers. Colours and positions are set by sky.js; only transform and opacity animate. */
+#sky { position: absolute; inset: 0; transition: background 4s ease; }
+#sky > * { position: absolute; }
+
+/* first paint, before sky.js runs: this hour's gradient (index.html picks the phase), the same colours as sky.js */
+html[data-early=night] #stage { background: linear-gradient(180deg, #010208 0%, #050A1C 55%, #0B1430 100%); }
+html[data-early=dawn] #stage { background: linear-gradient(180deg, #0A0F2A 0%, #2A2550 40%, #7A4258 72%, #C9714C 100%); }
+html[data-early=day] #stage { background: linear-gradient(180deg, #08203F 0%, #154270 45%, #3C6E9C 80%, #6A93B5 100%); }
+html[data-early=dusk] #stage { background: linear-gradient(180deg, #0B1030 0%, #322556 38%, #8A3E52 70%, #D9673A 100%); }
+
+/* the painted atmosphere: drawn small, scaled up smooth; a new phase cross-fades in */
+#sky canvas.fill { left: 0; top: 0; width: 100%; height: 100%; transition: opacity 4s ease; }
+
+/* stars: a field larger than the screen, turning a few degrees and back over hours,
+   like the real sky, so no star sits on the same pixels all night */
+#stars {
+  left: -140px; top: -60px; width: 2200px; height: 1200px;
+  transform-origin: 1100px -2300px;
+  transition: opacity 4s ease;
+  /* the far edge moves about 70 px in two hours: in 80 steps the TV redraws it every ~90 s, not 60 times a second */
+  animation: sky-turn 7200s steps(80) infinite alternate;
+}
+#stars.off, #stars.off i { animation-play-state: paused; }
+#stars canvas.field { position: absolute; left: 0; top: 0; width: 100%; height: 100%; }
+@keyframes sky-turn { from { transform: rotate(-2deg); } to { transform: rotate(2deg); } }
+#stars i {
+  position: absolute; border-radius: 50%; background: #DCE3F5;
+  animation: twinkle 4s ease-in-out infinite;
+}
+@keyframes twinkle { 0%, 100% { opacity: .15; } 50% { opacity: .85; } }
+
+/* follows the sun by transform (sky.js); it moves ~2 px a minute, so it simply steps, with no slide kept running */
+#horizon {
+  left: 0; bottom: -420px; width: 1800px; height: 900px; margin-left: -900px;
+  border-radius: 50%;
+  transition: opacity 4s ease;
+}
+
+/* sky.js sets its place, size, squash and fade by height each minute. It moves ~2 px a minute, which no eye
+   follows, so there's no 60 s slide (those kept the TV animating around the clock); only the fade eases. */
+#sun {
+  width: 360px; height: 360px; margin: -180px 0 0 -180px; left: 0; top: 0;
+  border-radius: 50%;
+  transform: var(--pos) scale(var(--sx, 1), var(--sy, 1));
+  transition: opacity 2s ease;
+}
+
+#moon { left: 0; top: 0; transition: opacity 4s ease; }
+#moon .halo {
+  position: absolute; width: 220px; height: 220px; left: -110px; top: -110px; border-radius: 50%;
+  background: radial-gradient(circle, rgba(200, 210, 235, 0.18), transparent 65%);
+}
+/* sky.js paints tonight's real phase, with the moon's own face, into this */
+#moon .crescent {
+  position: absolute; width: 64px; height: 64px; left: -32px; top: -32px;
+  opacity: .9;
+}
+#moon .crescent canvas { display: block; width: 100%; height: 100%; }
+
+/* optional photo wallpaper (config "photo"): dimmed, and always slowly moving so nothing burns in */
+#photo {
+  inset: -40px;
+  background-size: cover; background-position: center;
+  opacity: 0;
+  transition: opacity 2s ease;
+  animation: pan 240s ease-in-out infinite alternate;
+  animation-play-state: paused;   /* only moves while it is the wallpaper */
+}
+body.wallpaper #photo { animation-play-state: running; }
+@keyframes pan { from { transform: scale(1.04) translate(-12px, -6px); } to { transform: scale(1.08) translate(12px, 8px); } }
+body.wallpaper #photo { opacity: .55; }
+body.wallpaper #stars, body.wallpaper #horizon, body.wallpaper #sun, body.wallpaper #moon, body.wallpaper #clouds,
+body.wallpaper #sky canvas.fill { visibility: hidden; }
+body.wallpaper #sky { background: #000 !important; }
+
+#clouds { inset: 0; }
+/* procedural sprites from sky.js, sized inline; far ones drift slower (parallax) */
+#clouds .cloud {
+  position: absolute; left: 0;
+  width: 780px; height: 390px;
+  background-size: 100% 100%;
+  will-change: transform;   /* moved by sky.js's 24 fps drift loop */
+}
+
+/* keeps the bottom dark: legible dock, fewer lit OLED pixels */
+#sky .vignette {
+  inset: 0;
+  /* plus the grain (sky.js sets --grain): signed noise that dithers the gradients so they never band on the OLED */
+  background-image: var(--grain, none), linear-gradient(to bottom, rgba(4, 5, 10, 0.18) 0%, transparent 28%, transparent 48%, rgba(4, 5, 10, 0.9) 100%);
+  background-size: 128px 128px, 100% 100%;
+}
+
+/* Rain, snow and mist (sky.js): one half-size canvas of layered particles, scaled up 2x (which softens the
+   streaks like motion blur). Fades in and out with the weather. */
+#fall { inset: 0; overflow: hidden; opacity: 0; transition: opacity 3s ease; pointer-events: none; }
+#fall canvas.fx { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px; }
+
+/* lightning: a soft double flicker in the clouds, never a hard white flash */
+/* the flash lights the clouds from within, somewhere different each time (sky.js sets --fx and --fy) */
+#flash { inset: 0; pointer-events: none; opacity: 0; background: radial-gradient(ellipse 55% 45% at var(--fx, 60%) var(--fy, 20%), rgba(225, 232, 255, 0.55), rgba(200, 210, 255, 0.1) 55%, transparent 80%); }
+#flash.go { animation: flash 0.9s ease-out; }
+@keyframes flash { 0% { opacity: 0; } 8% { opacity: 0.55; } 18% { opacity: 0.1; } 28% { opacity: 0.35; } 100% { opacity: 0; } }

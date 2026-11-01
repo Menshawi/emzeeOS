@@ -1,5 +1,5 @@
 'use strict';
-// emzee helper: supplies what the launcher page can't get on its own. Listens on 127.0.0.1 only.
+// emzeeOS helper: supplies what the launcher page can't get on its own. Listens on 127.0.0.1 only.
 //   GET  /api/ping            version, node
 //   GET  /api/apps            [{id,name,icon,hidden}] in the user's order
 //   GET  /icon/<id>           the app's icon
@@ -9,7 +9,7 @@
 //   GET  /api/weather         Open-Meteo, cached 30 min; finds the location itself (location.js)
 //   GET  /api/fireplace       the fireplace screen saver's video: none | downloading (progress) | ready | failed
 //   POST /api/fireplace       start (or resume) downloading it on the TV; GET /fireplace streams it (ranges)
-//   GET  /api/location        where emzee thinks the TV is ({location}: name, lat, lon, source ip|timezone|manual)
+//   GET  /api/location        where emzeeOS thinks the TV is ({location}: name, lat, lon, source ip|timezone|manual)
 //   GET  /api/places?q=       place search for setting it by hand (Open-Meteo geocoding); POST /api/config
 //                             {"location":{lat,lon,name}} sets it, {"location":null} goes back to automatic
 //   GET  /wallpaper           data/wallpaper.jpg, when present
@@ -24,7 +24,7 @@ const location = require('./location');
 const fireplace = require('./fireplace');
 
 const PORT = Number(process.env.EMZEE_PORT) || 8775;
-const VERSION = '0.6.5';
+const VERSION = '0.6.6';
 // EMZEE_DEV=1 lets the desktop preview (http://localhost:<port>) call in; on the TV the page is file:// (Origin "null")
 const DEV = process.env.EMZEE_DEV === '1';
 
@@ -112,7 +112,7 @@ function handle(req, res) {
       }
       if (url === '/api/fireplace') return ok(fireplace.start());
       if (url === '/api/perf') {
-        // one line per measured animation, for tuning on the real TV (emzee Setup > Show log > Helper)
+        // one line per measured animation, for tuning on the real TV (emzeeOS Setup > Show log > Helper)
         const n = function (v) { v = Number(v); return isFinite(v) ? Math.round(v) : '?'; };
         const label = String(body.label || '').replace(/[^\w +().-]/g, '').slice(0, 60);
         console.log('[emzee] smoothness, ' + label + ': ' + n(body.fps) + ' fps, worst frame ' + n(body.worst) + ' ms, ' +

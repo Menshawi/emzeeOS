@@ -86,7 +86,7 @@ service.register('enable', function (msg) {
     '  ln "$P/media/fireplace.mp4" "$L/data/fireplace.mp4" 2>/dev/null || cp "$P/media/fireplace.mp4" "$L/data/fireplace.mp4"',
     '  printf \'{"quality":"4K","video":"13270910","bundled":true}\' > "$L/data/fireplace.json"',
     'fi',
-    'touch "$L/.via-ipk"',       // lets boot.sh clean up if this package is removed without "Remove emzee"
+    'touch "$L/.via-ipk"',       // lets boot.sh clean up if this package is removed without "Remove emzeeOS"
     'rm -f "$L/DISABLE"',
     'sh "$L/scripts/install.sh"',
     // an update must not leave the old helper running; boot.sh starts the new one.
@@ -101,12 +101,12 @@ service.register('enable', function (msg) {
       return msg.respond({ returnValue: false, errorText: 'setup failed' + (s.mounted ? '; LG\'s Home is coming back for now' : ''), log: log, status: s });
     }
     msg.respond({ returnValue: true, log: log, status: status() });
-    // puts emzee in Home's place and brings it to the front, which closes the setup app
+    // puts emzeeOS in Home's place and brings it to the front, which closes the setup app
     setTimeout(function () { detach('sh "' + L + '/scripts/boot.sh" now'); }, 1500);
   });
 });
 
-// give LG's Home back now and on later boots (creates DISABLE); "Make emzee my Home" turns it on again
+// give LG's Home back now and on later boots (creates DISABLE); "Make emzeeOS my Home" turns it on again
 service.register('disable', function (msg) {
   if (!guard(msg)) return;
   if (!exists(path.join(L, 'scripts/undo-home.sh'))) return msg.respond({ returnValue: true, status: status() });

@@ -1,7 +1,7 @@
 #!/bin/sh
 # Builds into dist/:
 #   com.emzee.launcher_<v>_all.ipk  phase 1: the launcher as an ordinary app
-#   com.emzee.home_<v>_all.ipk      phase 3 without SSH: "emzee Setup", an app plus a service that Homebrew
+#   com.emzee.home_<v>_all.ipk      phase 3 without SSH: "emzeeOS Setup", an app plus a service that Homebrew
 #                                   Channel elevates to root; it carries app/, service/ and scripts/ and runs them
 #   emzee-home_<v>.tar.gz           phases 2-3 by hand (for TVs with SSH): app/, service/, scripts/
 #   hbrepo/                         a Homebrew Channel repository (apps.json + one manifest per package)
@@ -40,7 +40,7 @@ Section: misc
 Priority: optional
 Architecture: all
 Installed-Size: $(du -sk "$data" | cut -f1)
-Maintainer: emzee
+Maintainer: emzeeOS
 Description: $desc
 webOS-Package-Format-Version: 2
 webOS-Packager-Version: x.y.x
@@ -84,9 +84,9 @@ trap 'rm -rf "$WORK"' EXIT
 
 # phase 1: the launcher
 copy "$ROOT/app" "$WORK/launcher/data/usr/palm/applications/com.emzee.launcher"
-ipk com.emzee.launcher "emzee, a minimal Home launcher" "$WORK/launcher/data"
+ipk com.emzee.launcher "emzeeOS, a minimal Home launcher" "$WORK/launcher/data"
 
-# phase 3 without SSH: emzee Setup, its root service, and the payload it installs into /media/developer/emzee
+# phase 3 without SSH: emzeeOS Setup, its root service, and the payload it installs into /media/developer/emzee
 D="$WORK/setup/data/usr/palm"
 copy "$ROOT/takeover/app" "$D/applications/com.emzee.home"
 cp "$ROOT/app/icon.png" "$ROOT/app/largeIcon.png" "$D/applications/com.emzee.home/"
@@ -94,7 +94,7 @@ copy "$ROOT/takeover/service" "$D/services/com.emzee.home.service"
 for d in app service scripts; do copy "$ROOT/$d" "$D/services/com.emzee.home.service/payload/$d"; done
 # the fireplace video (media/fireplace.mp4, Pexels licence) rides along in Setup only, so the TV needn't download it
 [ -f "$ROOT/media/fireplace.mp4" ] && copy "$ROOT/media" "$D/services/com.emzee.home.service/payload/media"
-ipk com.emzee.home "emzee Setup: makes emzee the Home screen (root via Homebrew Channel)" "$WORK/setup/data" com.emzee.home.service
+ipk com.emzee.home "emzeeOS Setup: makes emzeeOS the Home screen (root via Homebrew Channel)" "$WORK/setup/data" com.emzee.home.service
 
 # phases 2-3 by hand
 TGZ="$OUT/emzee-home_${VERSION}.tar.gz"
@@ -105,9 +105,9 @@ echo "built $TGZ (copy to /media/developer/emzee on a TV with SSH)"
 cp "$ROOT/app/largeIcon.png" "$OUT/hbrepo/icon.png"
 {
   printf '{\n  "packages": [\n'
-  manifest com.emzee.launcher "emzee Home" "Custom Home launcher" false
+  manifest com.emzee.launcher "emzeeOS Home" "Custom Home launcher" false
   printf ',\n'
-  manifest com.emzee.home "emzee Setup" "Makes emzee your Home screen (needs root)" true
+  manifest com.emzee.home "emzeeOS Setup" "Makes emzeeOS your Home screen (needs root)" true
   printf '\n  ]\n}\n'
 } > "$OUT/hbrepo/apps.json"
 echo "wrote $OUT/hbrepo (add $REPO_URL/hbrepo/apps.json in Homebrew Channel > Settings > Repositories)"

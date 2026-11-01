@@ -58,7 +58,7 @@
   }
 
   // apps that are inputs or system bits, not things to put in the dock
-  var SKIP = /^com\.webos\.app\.(hdmi|livetv|home|discovery|browser\.|camera|screensaver|inputcommon|externalinput|miracast|screenshare|tvhotkey|channelsetting|softwareupdate|settings|notificationcenter)|^com\.emzee\.launcher$/; // emzee Setup stays listed: the way back without SSH
+  var SKIP = /^com\.webos\.app\.(hdmi|livetv|home|discovery|browser\.|camera|screensaver|inputcommon|externalinput|miracast|screenshare|tvhotkey|channelsetting|softwareupdate|settings|notificationcenter)|^com\.emzee\.launcher$/; // emzeeOS Setup stays listed: the way back without SSH
 
   function lunaApps() {
     return luna('luna://com.webos.applicationManager/listLaunchPoints', {}).then(function (r) {
@@ -199,7 +199,7 @@
       return viaHelper('/api/perf', { label: label, fps: fps, worst: worst, slow: slow, frames: frames }).catch(function () {});
     },
 
-    // where emzee thinks the TV is: {name, lat, lon, source: ip | timezone | manual}, or null
+    // where emzeeOS thinks the TV is: {name, lat, lon, source: ip | timezone | manual}, or null
     location: function () {
       return viaHelper('/api/location').then(function (r) { return r.location; })
         .catch(function () { return localConfig().location || { name: 'Stockholm', lat: 59.33, lon: 18.07, source: 'ip' }; });

@@ -37,7 +37,7 @@
       { key: 'saver', label: 'Style' }
     ].concat(String(conf.saver).indexOf('fire') === 0 ? [{ key: 'fireSpeed', label: 'Fire speed' }] : []).concat([
       { group: 'About' },
-      { key: 'setup', label: 'emzee Setup', value: 'Open', note: 'turn emzee on or off, update, logs', go: true }
+      { key: 'setup', label: 'emzeeOS Setup', value: 'Open', note: 'turn emzeeOS on or off, update, logs', go: true }
     ]);
   }
 

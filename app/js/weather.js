@@ -37,7 +37,7 @@
     var w = {}, s = EZ.sky.times(), hour = EZ.sky.hour();
     for (var k in data) w[k] = data[k];
     var sun = hour < s.rise || hour >= s.set + 0.9 ? 'Sunrise ' + fmt(s.rise) : 'Sunset ' + fmt(s.set);
-    // the place, so it's clear where emzee thinks the TV is
+    // the place, so it's clear where emzeeOS thinks the TV is
     set('sunline', (w.place ? w.place + ' · ' : '') + sun);
     if (w.offline) {
       // a location but no forecast: say so rather than show made-up numbers
@@ -85,7 +85,7 @@
       // refresh every 30 minutes (the helper caches upstream); this also moves the sun on to the new day
       setInterval(function () { EZ.api.weather().then(apply); }, 30 * 60000);
     },
-    // on coming back to Home: a location set in emzee Setup shows at once (the helper caches the rest)
+    // on coming back to Home: a location set in emzeeOS Setup shows at once (the helper caches the rest)
     refresh: function () { EZ.api.weather().then(apply); },
     // the full forecast, for the weather page
     data: function () { return data; },

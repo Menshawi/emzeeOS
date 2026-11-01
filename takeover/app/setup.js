@@ -1,4 +1,4 @@
-// emzee Setup: asks Homebrew Channel to elevate com.emzee.home.service, then calls it to turn the takeover
+// emzeeOS Setup: asks Homebrew Channel to elevate com.emzee.home.service, then calls it to turn the takeover
 // on, off, or remove it. Left/right move, OK presses, Back closes. Without a TV (no PalmServiceBridge)
 // it runs against a stand-in so the screen can be previewed.
 (function () {
@@ -51,7 +51,7 @@
     $('f-root').className = s.root ? '' : 'bad';
     $('f-state').textContent = !s.installed ? 'Not set up' : s.disabled ? 'Off (LG\'s Home)' : s.mounted ? 'On' : 'On from next boot';
     $('f-version').textContent = s.version ? s.version + (s.bundled && s.bundled !== s.version ? ' → ' + s.bundled + ' ready' : '') : (s.bundled || '–');
-    $('enable').textContent = s.installed && !s.disabled && s.bundled !== s.version ? 'Update emzee' : 'Make emzee my Home';
+    $('enable').textContent = s.installed && !s.disabled && s.bundled !== s.version ? 'Update emzeeOS' : 'Make emzeeOS my Home';
     $('disable').disabled = !s.root || !s.installed || s.disabled;
     $('uninstall').disabled = !s.root;
     $('enable').disabled = !s.root;
@@ -68,7 +68,7 @@
 
   function disarm() {
     if (!armed) return;
-    armed.classList.remove('confirm'); armed.textContent = 'Remove emzee completely'; armed = null;
+    armed.classList.remove('confirm'); armed.textContent = 'Remove emzeeOS completely'; armed = null;
   }
 
   // ---- root ----
@@ -99,9 +99,9 @@
 
   // ---- actions ----
   var SAY = {
-    enable: ['Setting up…', 'Done. emzee takes over in a few seconds; this app will close.'],
-    disable: ['Giving LG\'s Home back…', 'LG\'s Home is back, and stays on later boots until you turn emzee on again.'],
-    uninstall: ['Removing emzee…', 'Removing everything. LG\'s Home comes back and this app uninstalls itself.']
+    enable: ['Setting up…', 'Done. emzeeOS takes over in a few seconds; this app will close.'],
+    disable: ['Giving LG\'s Home back…', 'LG\'s Home is back, and stays on later boots until you turn emzeeOS on again.'],
+    uninstall: ['Removing emzeeOS…', 'Removing everything. LG\'s Home comes back and this app uninstalls itself.']
   };
 
   // ---- log view ----
@@ -136,7 +136,7 @@
   }
 
   // ---- location ----
-  // Where emzee thinks the TV is comes from its helper (running whenever emzee is Home): found from the internet
+  // Where emzeeOS thinks the TV is comes from its helper (running whenever emzeeOS is Home): found from the internet
   // connection, else the time zone, or set here by hand. Setting it here is never overridden.
   var HELPER = 'http://127.0.0.1:8775';
   var SOURCE = { tv: 'from the TV\'s postcode', ip: 'from your internet connection', timezone: 'from the TV\'s time zone', manual: 'set by you' };
@@ -148,7 +148,7 @@
     x.open(body ? 'POST' : 'GET', HELPER + path, true);
     x.timeout = 10000;
     x.onload = function () { var r = null; try { r = JSON.parse(x.responseText); } catch (e) { /* not JSON */ } cb(x.status >= 200 && x.status < 300 && r ? null : new Error((r && r.error) || 'helper ' + x.status), r); };
-    x.onerror = x.ontimeout = function () { cb(new Error('emzee\'s helper isn\'t running (is emzee on?)')); };
+    x.onerror = x.ontimeout = function () { cb(new Error('emzeeOS\'s helper isn\'t running (is emzeeOS on?)')); };
     if (body) x.setRequestHeader('Content-Type', 'application/json');
     x.send(body ? JSON.stringify(body) : null);
   }
@@ -168,7 +168,7 @@
   function refreshWhere() {
     helper('/api/location', null, function (err, r) {
       where.now = !err && r.location;
-      $('f-loc').textContent = err ? 'Shows while emzee is on' : whereText(r.location);
+      $('f-loc').textContent = err ? 'Shows while emzeeOS is on' : whereText(r.location);
       $('f-loc').className = err ? 'bad' : '';
     });
   }
@@ -215,7 +215,7 @@
     helper('/api/config', body, function (err) {
       if (err) return note('Couldn\'t save the location: ' + err.message, true);
       closeWhere();
-      note(p.auto ? 'Location set to automatic.' : 'Location set to ' + p.name + '. emzee shows it when you go back Home.');
+      note(p.auto ? 'Location set to automatic.' : 'Location set to ' + p.name + '. emzeeOS shows it when you go back Home.');
       refreshWhere();
     });
   }

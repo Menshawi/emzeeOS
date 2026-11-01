@@ -1,4 +1,4 @@
-# Shared by the emzee scripts. Sourced, not run. Runs on the TV as root (busybox sh).
+# Shared by the emzeeOS scripts. Sourced, not run. Runs on the TV as root (busybox sh).
 # shellcheck shell=sh disable=SC2034
 
 L=${EMZEE_HOME:-/media/developer/emzee}           # everything of ours lives here
@@ -8,7 +8,7 @@ B=$L/backup
 READY=/tmp/emzee-ready
 LASTAPP=/var/luna/preferences/bootd_last_foreground_app_id.json
 INITD=${EMZEE_INITD:-/var/lib/webosbrew/init.d/50-emzee-home}
-SETUP_APP=${EMZEE_SETUP_APP:-/media/developer/apps/usr/palm/applications/com.emzee.home}  # the emzee Setup ipk, when installed that way
+SETUP_APP=${EMZEE_SETUP_APP:-/media/developer/apps/usr/palm/applications/com.emzee.home}  # the emzeeOS Setup ipk, when installed that way
 BLOCK_SCHEMA=${EMZEE_BLOCK_SCHEMA:-/etc/palm/schemas/sam/applicationManager.blockSystemApp.schema}
 HOME_ID=com.webos.app.home
 export PATH="/usr/bin:/usr/sbin:/bin:/sbin:$PATH"

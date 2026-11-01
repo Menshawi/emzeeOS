@@ -1,6 +1,6 @@
 'use strict';
 // Where the TV is, for the weather and the sun. Kept in config.location, from the best source available:
-//   1. set by hand (POST /api/config {"location":{...}}, emzee Settings or Setup): never replaced;
+//   1. set by hand (POST /api/config {"location":{...}}, emzeeOS Settings or Setup): never replaced;
 //   2. the postcode in the TV's own Settings > General > Location (settingsservice "option" zipcode), looked up
 //      once per postcode with OpenStreetMap's Nominatim (it knows postcodes; Open-Meteo's geocoder doesn't);
 //   3. the internet connection (an IP lookup; often the provider's city rather than the town);
@@ -79,7 +79,7 @@ function save(l) {
   return l;
 }
 
-// Place search for setting the location by hand (emzee Setup): Open-Meteo's free geocoder.
+// Place search for setting the location by hand (emzeeOS Setup): Open-Meteo's free geocoder.
 const SEARCH = process.env.EMZEE_PLACES_URL || 'https://geocoding-api.open-meteo.com/v1/search';
 function search(q) {
   q = String(q || '').trim().slice(0, 60);

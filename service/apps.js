@@ -6,7 +6,7 @@ const luna = require('./luna');
 const config = require('./config');
 
 // inputs and system pieces that never belong in the dock
-const SKIP = /^com\.webos\.app\.(hdmi|livetv|home|inputcommon|externalinput|miracast|screenshare|tvhotkey|channelsetting|softwareupdate|settings|notificationcenter|discovery|camera|screensaver|voice|care365|membership|btspeakerapp|connectionwizard|factorywin|igallery|sheetmusic|remotesetting|self-diagnosis|oobe)|^com\.emzee\.launcher$/;  // emzee Setup (com.emzee.home) stays listed: it's the way back without SSH
+const SKIP = /^com\.webos\.app\.(hdmi|livetv|home|inputcommon|externalinput|miracast|screenshare|tvhotkey|channelsetting|softwareupdate|settings|notificationcenter|discovery|camera|screensaver|voice|care365|membership|btspeakerapp|connectionwizard|factorywin|igallery|sheetmusic|remotesetting|self-diagnosis|oobe)|^com\.emzee\.launcher$/;  // emzeeOS Setup (com.emzee.home) stays listed: it's the way back without SSH
 
 let cached = null, cachedAt = 0;
 

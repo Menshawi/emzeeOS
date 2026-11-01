@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Draws the launch splash: the near-black ground with the small emzee tile in the middle, so webOS has
+"""Draws the launch splash: the near-black ground with the small emzeeOS tile in the middle, so webOS has
 something calm to show while it starts the launcher. Mostly black, for the OLED. No dependencies.
 
 Usage: python3 tools/make-splash.py   -> app/splash.png (1920x1080)

@@ -4,7 +4,7 @@
 set -e
 APP="$(cd "$(dirname "$0")/../app" && pwd)"
 PORT="${1:-8090}"
-echo "emzee preview: http://localhost:$PORT/"
+echo "emzeeOS preview: http://localhost:$PORT/"
 echo "  test params: ?phase=dawn|day|dusk|night  ?idle=1  ?blur=0"
 exec python3 -c '
 import functools, http.server, sys

@@ -1,7 +1,7 @@
 'use strict';
 // The fireplace screen saver's video: "Burning Logs in a Fireplace" by Volodymyr Kostiev on Pexels (Pexels
 // licence: free to use, no credit required), 15 s of a real wood fire at 60 fps with its own crackling sound,
-// looped. emzee Setup carries it (media/fireplace.mp4) and links it into data/ when it installs; otherwise
+// looped. emzeeOS Setup carries it (media/fireplace.mp4) and links it into data/ when it installs; otherwise
 // (installed by hand, or the file is missing) the TV downloads it once, in the background, the first time Fireplace is
 // chosen, in the best quality its free space allows (4K 49 MB, else 1440p 27 MB or 1080p 12 MB), resuming
 // where it stopped if interrupted. Served to the page with HTTP range requests so the video can stream and loop.

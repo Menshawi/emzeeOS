@@ -6,17 +6,17 @@
 # Failsafe: once Home is in front, the launcher must report ready within 30 s, or LG's Home comes back for this boot.
 # Every step is bounded and runs once per boot; nothing here loops on its own. Log: /tmp/emzee-boot.log.
 # Skips everything when /media/developer/emzee/DISABLE exists. The mount lives in RAM: a reboot always undoes it.
-# Usage: runs at boot; by hand or from emzee Setup: sh /media/developer/emzee/scripts/boot.sh [now]
-#   now   also bring emzee to the front (and reload its page) right away
+# Usage: runs at boot; by hand or from emzeeOS Setup: sh /media/developer/emzee/scripts/boot.sh [now]
+#   now   also bring emzeeOS to the front (and reload its page) right away
 . "$(dirname "$(readlink -f "$0")")/common.sh"
 
 NOW=$1
 [ -e "$L/DISABLE" ] && exit 0
 
-# Set up through the emzee Setup ipk, and that package has since been removed in Homebrew Channel
+# Set up through the emzeeOS Setup ipk, and that package has since been removed in Homebrew Channel
 # (which runs no remove hooks): finish the uninstall now. Nothing is mounted yet this early in boot.
 if [ -e "$L/.via-ipk" ] && [ ! -d "$SETUP_APP" ]; then
-  log "emzee Setup was removed; removing $INITD and $L" >>/tmp/emzee-boot.log
+  log "emzeeOS Setup was removed; removing $INITD and $L" >>/tmp/emzee-boot.log
   rm -f "$INITD"
   case "$L" in /media/developer/emzee) rm -rf "$L" ;; esac
   exit 0
@@ -44,8 +44,8 @@ takeover() {
 
   if ! reread_home web; then
     restart_sam
-    [ "$(sam_home_type)" = web ] || { give_back "sam won't take emzee as Home"; return 1; }
-    log "sam took emzee as Home after the restart"
+    [ "$(sam_home_type)" = web ] || { give_back "sam won't take emzeeOS as Home"; return 1; }
+    log "sam took emzeeOS as Home after the restart"
   fi
 
   front=$(foreground)

@@ -1,17 +1,17 @@
-# emzee
+# emzeeOS
 
 A calm, minimal Home screen for rooted LG OLED TVs (webOS). It shows a live sky that follows the real sun, moon and weather, a magnifying dock of your pinned apps and inputs, an Apple Weather-style weather page, and an OLED-safe screen saver: the sky, or a crackling 4K fireplace.
 
 Built and used on an LG OLED77C26LD (C2) running webOS 25. Other models are untested.
 
 > [!WARNING]
-> **Use at your own risk.** emzee replaces LG's Home screen on a **rooted** TV, using root through Homebrew Channel. Rooting your TV and running root code on it can void your warranty and, in the worst case, leave the TV unusable.
+> **Use at your own risk.** emzeeOS replaces LG's Home screen on a **rooted** TV, using root through Homebrew Channel. Rooting your TV and running root code on it can void your warranty and, in the worst case, leave the TV unusable.
 >
-> emzee is provided "as is", without warranty of any kind (see [LICENSE](LICENSE)). By installing it, you accept full responsibility for your TV. The author is not liable for any damage, data loss, voided warranty or other harm arising from its use.
+> emzeeOS is provided "as is", without warranty of any kind (see [LICENSE](LICENSE)). By installing it, you accept full responsibility for your TV. The author is not liable for any damage, data loss, voided warranty or other harm arising from its use.
 >
-> emzee takes care to be safe: it only ever writes to `/media/developer/emzee`, its bind mount lasts until the next reboot, and a failsafe brings LG's Home back if emzee doesn't start. But none of this is a guarantee.
+> emzeeOS takes care to be safe: it only ever writes to `/media/developer/emzee`, its bind mount lasts until the next reboot, and a failsafe brings LG's Home back if emzeeOS doesn't start. But none of this is a guarantee.
 >
-> emzee is an independent project. It is not affiliated with or endorsed by LG Electronics. "LG" and "webOS" are trademarks of their owners.
+> emzeeOS is an independent project. It is not affiliated with or endorsed by LG Electronics. "LG" and "webOS" are trademarks of their owners.
 
 ## What's in it
 
@@ -42,12 +42,12 @@ cd dist && python3 -m http.server 8096    # serve it on your network
 
 Then, on the TV:
 1. Homebrew Channel → Settings → Repositories: add the `hbrepo/apps.json` URL that `package.sh` printed.
-2. Install **emzee Setup**, open it, and press **Make emzee my Home**.
+2. Install **emzeeOS Setup**, open it, and press **Make emzeeOS my Home**.
 
 The full walkthrough is in [On the TV, without SSH](#on-the-tv-without-ssh-homebrew-channel-repository).
 
 **The fireplace video** isn't in this repository: it's under the Pexels licence, which doesn't allow redistributing copies as they are. Either:
-- download ["Burning Logs in a Fireplace"](https://www.pexels.com/video/burning-logs-in-a-fireplace-13270910/) yourself (4K), save it as `media/fireplace.mp4`, and `package.sh` bundles it into emzee Setup; or
+- download ["Burning Logs in a Fireplace"](https://www.pexels.com/video/burning-logs-in-a-fireplace-13270910/) yourself (4K), save it as `media/fireplace.mp4`, and `package.sh` bundles it into emzeeOS Setup; or
 - skip it, and the TV downloads it from Pexels the first time you pick Fireplace.
 
 ## Layout
@@ -59,7 +59,7 @@ The full walkthrough is in [On the TV, without SSH](#on-the-tv-without-ssh-homeb
 - `app/js/settings.js`, `wxpage.js`: the Settings panel and the weather page.
 - `service/`: `service.js` (HTTP), `luna.js` (time-limited `luna-send`), `apps.js`, `inputs.js`, `weather.js`, `location.js`, `fireplace.js`, `config.js`.
 - `scripts/`: `install.sh`, `boot.sh`, `stage-home.sh`, `undo-home.sh`, `watchdog.sh` and `uninstall.sh`, plus `common.sh` and `stage-appinfo.js`.
-- `takeover/`: **emzee Setup** (`com.emzee.home`), which runs phase 3 without SSH. `app/` is the setup screen; `service/takeover.js` is a webOS JS service that Homebrew Channel elevates to root, and it runs the scripts above.
+- `takeover/`: **emzeeOS Setup** (`com.emzee.home`), which runs phase 3 without SSH. `app/` is the setup screen; `service/takeover.js` is a webOS JS service that Homebrew Channel elevates to root, and it runs the scripts above.
 - `tools/`: `preview.sh`, `package.sh`, `make-icons.py` and `make-splash.py` (the launch splash, `app/splash.png`).
 
 ## Preview
@@ -91,9 +91,9 @@ URL parameters for testing:
 ## Controls
 
 On Home:
-- ↑ from the dock reaches the round gear by the weather; OK opens **Settings** (location, °C/°F, 12/24-hour clock, when the screen saver starts, calm or full sky motion, and a way into emzee Setup). ◀ ▶ change a setting; it saves at once.
+- ↑ from the dock reaches the round gear by the weather; OK opens **Settings** (location, °C/°F, 12/24-hour clock, when the screen saver starts, calm or full sky motion, and a way into emzeeOS Setup). ◀ ▶ change a setting; it saves at once.
 - → from the gear reaches the weather tile; OK (or a click) opens the **weather page** (after Apple Weather): the place and temperature over the live sky; cards for wind (compass), the moon, sunrise/sunset (arc), UV, feels like, precipitation, humidity, pressure (dial), visibility and air quality; Conditions for the next 24 hours and the next 10 days, each in temperature, rain or wind view (▲ ▼ switch view, ◀ ▶ scroll the hours, Back closes).
-- Settings → Screen saver → Style: **Sky**, **Fireplace** (a real 4K wood fire with its crackle, boosted 2.5× since the clip is quiet, "Burning Logs in a Fireplace" by Volodymyr Kostiev on Pexels, at the **Fire speed** set just below it, 0.5× to 1×, 0.9× by default) or **Fireplace, silent**. Over the fire the clock shrinks to a small, faint time in the top-right corner. emzee Setup carries the video (`media/fireplace.mp4`, 49 MB) and hard-links it into `data/` when it installs. Installed by hand, the TV downloads it once instead, and the sky shows until it has it.
+- Settings → Screen saver → Style: **Sky**, **Fireplace** (a real 4K wood fire with its crackle, boosted 2.5× since the clip is quiet, "Burning Logs in a Fireplace" by Volodymyr Kostiev on Pexels, at the **Fire speed** set just below it, 0.5× to 1×, 0.9× by default) or **Fireplace, silent**. Over the fire the clock shrinks to a small, faint time in the top-right corner. emzeeOS Setup carries the video (`media/fireplace.mp4`, 49 MB) and hard-links it into `data/` when it installs. Installed by hand, the TV downloads it once instead, and the sky shows until it has it.
 - The dock magnifies like the Mac's: the focused tile (or the one under the pointer) grows most, its neighbours less.
 - ← → move along the dock.
 - OK opens the selected item.
@@ -116,7 +116,7 @@ tools/package.sh
 
 It builds these in `dist/`:
 - `com.emzee.launcher_<v>_all.ipk`: phase 1, as an ordinary app.
-- `com.emzee.home_<v>_all.ipk`: emzee Setup, carrying `app/`, `service/` and `scripts/`.
+- `com.emzee.home_<v>_all.ipk`: emzeeOS Setup, carrying `app/`, `service/` and `scripts/`.
 - `emzee-home_<v>.tar.gz`: `app/`, `service/` and `scripts/`, for `/media/developer/emzee` on a TV with SSH.
 - `hbrepo/`: a Homebrew Channel repository (`apps.json` plus one manifest per package, with sha256 hashes).
 
@@ -128,45 +128,45 @@ cd dist && python3 -m http.server 8096
 
 ## On the TV, without SSH (Homebrew Channel repository)
 
-Homebrew Channel doesn't run ipk install or remove scripts. Instead, emzee Setup asks Homebrew Channel to elevate its service (`luna://org.webosbrew.hbchannel.service/elevateService`), then the service runs the same scripts as root. Homebrew Channel must itself be running as root (its Settings show this).
+Homebrew Channel doesn't run ipk install or remove scripts. Instead, emzeeOS Setup asks Homebrew Channel to elevate its service (`luna://org.webosbrew.hbchannel.service/elevateService`), then the service runs the same scripts as root. Homebrew Channel must itself be running as root (its Settings show this).
 
 1. In Homebrew Channel → Settings → Repositories, add `http://<mac>:8096/hbrepo/apps.json`.
-2. In the Apps tab, install **emzee Setup** (and **emzee Home** if you want the standalone launcher too).
-3. Open emzee Setup. The Root fact should say Yes after a few seconds.
-4. **Make emzee my Home**: copies the bundled launcher, helper and scripts into `/media/developer/emzee`, links the boot hook, stages the overlay, then takes over Home right away and closes the Setup app. If emzee doesn't report ready within 30 s of being in front, LG's Home comes back for that boot.
-5. **Give LG's Home back**: runs `undo-home.sh` (creates `DISABLE`, so later boots keep LG's Home). Pressing **Make emzee my Home** again turns it back on.
-6. **Remove emzee completely**: press it twice. It runs `uninstall.sh -y`, which also removes emzee Home and emzee Setup.
-7. To update: install the new emzee Setup from Homebrew Channel, open it, and press **Update emzee**.
+2. In the Apps tab, install **emzeeOS Setup** (and **emzeeOS Home** if you want the standalone launcher too).
+3. Open emzeeOS Setup. The Root fact should say Yes after a few seconds.
+4. **Make emzeeOS my Home**: copies the bundled launcher, helper and scripts into `/media/developer/emzee`, links the boot hook, stages the overlay, then takes over Home right away and closes the Setup app. If emzeeOS doesn't report ready within 30 s of being in front, LG's Home comes back for that boot.
+5. **Give LG's Home back**: runs `undo-home.sh` (creates `DISABLE`, so later boots keep LG's Home). Pressing **Make emzeeOS my Home** again turns it back on.
+6. **Remove emzeeOS completely**: press it twice. It runs `uninstall.sh -y`, which also removes emzeeOS Home and emzeeOS Setup.
+7. To update: install the new emzeeOS Setup from Homebrew Channel, open it, and press **Update emzeeOS**.
 
 How to get back:
-- emzee Setup stays listed in emzee's own app row, so you can always reach it.
+- emzeeOS Setup stays listed in emzeeOS's own app row, so you can always reach it.
 - The failsafe and the watchdog work the same as with SSH.
-- If you uninstall emzee Setup from Homebrew Channel instead of using **Remove emzee completely**, the next boot notices that the package is gone. It removes the boot hook and `/media/developer/emzee` without mounting anything. This only happens when the install was done by emzee Setup.
+- If you uninstall emzeeOS Setup from Homebrew Channel instead of using **Remove emzeeOS completely**, the next boot notices that the package is gone. It removes the boot hook and `/media/developer/emzee` without mounting anything. This only happens when the install was done by emzeeOS Setup.
 
 ### The Input button
 
-webOS handles the Input button itself, so it opens LG's input screen even with emzee as Home. emzee opens its own Inputs sheet when it is launched with `{"emzee":"inputs"}`, so a button remapper only has to run one command. Use **LG Input Mapper** ([fivefold3/lginputmapper](https://github.com/fivefold3/lginputmapper)): it was built for webOS 24/25 (tested on a 2025 C5) and doesn't inject into LG's processes. The older LG Input Hook has reports of not working on webOS 24/25.
+webOS handles the Input button itself, so it opens LG's input screen even with emzeeOS as Home. emzeeOS opens its own Inputs sheet when it is launched with `{"emzee":"inputs"}`, so a button remapper only has to run one command. Use **LG Input Mapper** ([fivefold3/lginputmapper](https://github.com/fivefold3/lginputmapper)): it was built for webOS 24/25 (tested on a 2025 C5) and doesn't inject into LG's processes. The older LG Input Hook has reports of not working on webOS 24/25.
 1. In Homebrew Channel → Settings → Add repository, enter `https://raw.githubusercontent.com/fivefold3/webos-homebrew-repo/main/repo.json`, then install LG Input Mapper and open it once.
 2. Remap the Input button (press it when asked), choose **Run a command**, and enter:
    ```
    luna-send -n 1 luna://com.webos.applicationManager/launch '{"id":"com.webos.app.home","params":{"emzee":"inputs"}}'
    ```
-   ("Launch an app" alone would open emzee without the Inputs sheet.)
-3. Pressing Input now brings emzee forward with its Inputs sheet open, from any app. Removing the mapping gives the button back to LG.
+   ("Launch an app" alone would open emzeeOS without the Inputs sheet.)
+3. Pressing Input now brings emzeeOS forward with its Inputs sheet open, from any app. Removing the mapping gives the button back to LG.
 
 LG Input Mapper is a small community project, untested on a C2 or its remote.
 
-**Show log** in emzee Setup shows the startup log (each step with seconds since power-on), the helper's log and Setup's own: `/tmp/emzee-boot.log`, `/tmp/emzee-helper.log` and `/tmp/emzee-setup.log`. They are cleared at each full restart.
+**Show log** in emzeeOS Setup shows the startup log (each step with seconds since power-on), the helper's log and Setup's own: `/tmp/emzee-boot.log`, `/tmp/emzee-helper.log` and `/tmp/emzee-setup.log`. They are cleared at each full restart.
 
 ### How the takeover works on webOS 25
 
 It follows Glasshouse Home (`server/lib/home-takeover.js` and `samrescan.js`), the most widely used Home replacement for rooted LG TVs:
 1. Bind-mount the staged launcher over `/usr/palm/applications/com.webos.app.home`. Its `appinfo.json` keeps LG's id, is a web app with `appCategory: ["home"]` (webOS 10/11 open the default app of that category for the Home key) and `visible: false`.
 2. Make sam reread Home without restarting: `applicationManager/blockSystemApp` then `releaseBlockSystemApp` (with `forceBlockSystemApp: false` where the TV's schema asks for it), then poll `getAppInfo` until it reports type `web` (about 8 s at most). Restarting sam is only the fallback; Glasshouse found it is what left screens black, and CleanYourTV that it breaks other services.
-3. Only then stop LG's Home process (`/usr/bin/com.webos.app.home`, or `flutter-client -i com.webos.app.home`). Where it was in front, sam opens Home again by itself, now as emzee; emzee asks once if it hasn't after 6 s.
+3. Only then stop LG's Home process (`/usr/bin/com.webos.app.home`, or `flutter-client -i com.webos.app.home`). Where it was in front, sam opens Home again by itself, now as emzeeOS; emzeeOS asks once if it hasn't after 6 s.
 4. The failsafe counts from when Home is in front. Every step has a fixed number of tries and runs once per boot, so nothing can loop: the worst case is LG's Home for that boot.
 
-Giving LG's Home back is the same in reverse: unmount, reread, then close emzee's page.
+Giving LG's Home back is the same in reverse: unmount, reread, then close emzeeOS's page.
 
 ## On the TV, with SSH (rooted, Homebrew Channel)
 
@@ -225,7 +225,7 @@ Logs are in `/tmp/emzee-boot.log` and `/tmp/emzee-helper.log`.
 
 ## Credits and third-party services
 
-emzee calls these services from the TV. Each has its own terms; the free tiers are meant for personal, non-commercial use.
+emzeeOS calls these services from the TV. Each has its own terms; the free tiers are meant for personal, non-commercial use.
 - **Weather, air quality, normals and town search:** [Open-Meteo](https://open-meteo.com/) (data under CC BY 4.0; credited on the weather page).
 - **Postcode lookup:** [Nominatim](https://nominatim.openstreetmap.org/), with data © [OpenStreetMap contributors](https://www.openstreetmap.org/copyright) (ODbL). One lookup per postcode, cached.
 - **Location from your connection:** [ipapi.co](https://ipapi.co/), falling back to [ipwho.is](https://ipwho.is/).

@@ -1,7 +1,7 @@
 'use strict';
 // Prints the appinfo.json for the overlay: LG's Home appinfo (keeps its id, trust level and permissions)
 // switched to a web app that opens our index.html.
-// Usage: node stage-appinfo.js <home-appinfo.orig.json> <emzee appinfo.json>
+// Usage: node stage-appinfo.js <home-appinfo.orig.json> <emzeeOS appinfo.json>
 const fs = require('fs');
 
 const orig = JSON.parse(fs.readFileSync(process.argv[2], 'utf8'));

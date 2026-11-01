@@ -22,7 +22,7 @@ button { font-family: inherit; }
    main.js sets this on the TV, or in a browser that can't keep the blur smooth */
 .no-blur .glass { -webkit-backdrop-filter: none; backdrop-filter: none; background: rgba(28, 28, 32, 0.72); }
 
-/* while emzee is hidden behind another app (main.js sets this), nothing animates */
+/* while emzeeOS is hidden behind another app (main.js sets this), nothing animates */
 body.paused *, body.paused *::before, body.paused *::after { animation-play-state: paused !important; }
 
 /* ---- home layer: drifts slowly so no edge sits on the same pixels (burn-in) ---- */

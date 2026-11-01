@@ -1,0 +1,15 @@
+name: Share your setup
+description: Show us emzeeOS on your TV
+labels: ["showcase"]
+body:
+  - type: markdown
+    attributes:
+      value: Drag a photo or video into the box below. We love seeing it in the wild.
+  - type: input
+    id: tv
+    attributes: {label: TV model}
+  - type: textarea
+    id: setup
+    attributes:
+      label: Your setup
+      description: Photos, which pins you use, your favourite sky or weather state.

@@ -1,0 +1,19 @@
+name: Bug report
+description: Something isn't working
+labels: ["bug"]
+body:
+  - type: input
+    id: tv
+    attributes: {label: TV model and webOS version}
+    validations: {required: true}
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened, and what did you expect?
+    validations: {required: true}
+  - type: textarea
+    id: log
+    attributes:
+      label: Logs
+      description: emzeeOS Setup → Show log (boot, helper and setup logs)
+      render: text

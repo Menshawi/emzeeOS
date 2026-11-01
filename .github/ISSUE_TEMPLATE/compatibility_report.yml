@@ -1,0 +1,28 @@
+name: Compatibility report
+description: Tell us whether emzeeOS works on your TV
+title: "[Compat] <model> / webOS <version>"
+labels: ["compatibility"]
+body:
+  - type: input
+    id: model
+    attributes:
+      label: TV model
+      placeholder: OLED65C3PUA
+    validations: {required: true}
+  - type: input
+    id: webos
+    attributes:
+      label: webOS version
+      description: Settings → General → About This TV
+    validations: {required: true}
+  - type: dropdown
+    id: result
+    attributes:
+      label: Result
+      options: [Works fully, Works with problems, Does not work, LG's Home came back (failsafe)]
+    validations: {required: true}
+  - type: textarea
+    id: notes
+    attributes:
+      label: Notes
+      description: What worked or didn't. Paste "Show log" output from emzeeOS Setup if something failed.

@@ -7,3 +7,5 @@ media/*.mp4
 .DS_Store
 ._*
 __pycache__/
+# launch drafts (not part of the repo)
+launch/

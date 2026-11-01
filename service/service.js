@@ -9,6 +9,7 @@
 //   GET  /api/weather         Open-Meteo, cached 30 min; finds the location itself (location.js)
 //   GET  /api/fireplace       the fireplace screen saver's video: none | downloading (progress) | ready | failed
 //   POST /api/fireplace       start (or resume) downloading it on the TV; GET /fireplace streams it (ranges)
+//   GET  /fireplace/init.mp4, /fireplace/loop.m4s   the same video as fragmented MP4, for the seamless loop
 //   GET  /api/location        where emzeeOS thinks the TV is ({location}: name, lat, lon, source ip|timezone|manual)
 //   GET  /api/places?q=       place search for setting it by hand (Open-Meteo geocoding); POST /api/config
 //                             {"location":{lat,lon,name}} sets it, {"location":null} goes back to automatic
@@ -24,7 +25,7 @@ const location = require('./location');
 const fireplace = require('./fireplace');
 
 const PORT = Number(process.env.EMZEE_PORT) || 8775;
-const VERSION = '0.6.6';
+const VERSION = '0.6.7';
 // EMZEE_DEV=1 lets the desktop preview (http://localhost:<port>) call in; on the TV the page is file:// (Origin "null")
 const DEV = process.env.EMZEE_DEV === '1';
 
@@ -87,6 +88,8 @@ function handle(req, res) {
   if (req.method === 'GET' && url === '/api/weather') return weather.current().then(ok, fail);
   if (req.method === 'GET' && url === '/api/fireplace') return ok(fireplace.status());
   if (req.method === 'GET' && url === '/fireplace') return fireplace.serve(req, res, allow);
+  if (req.method === 'GET' && url === '/fireplace/init.mp4') return fireplace.serveFragments(req, res, allow, 'init');
+  if (req.method === 'GET' && url === '/fireplace/loop.m4s') return fireplace.serveFragments(req, res, allow, 'loop');
   if (req.method === 'GET' && url === '/api/location') return location.resolve().then(function (l) { ok({ location: l }); }, fail);
   if (req.method === 'GET' && url === '/api/places') {
     const q = new URLSearchParams(req.url.split('?')[1] || '').get('q') || '';

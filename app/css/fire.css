@@ -3,9 +3,6 @@
 #fire { position: absolute; inset: 0; opacity: 0; visibility: hidden; transition: opacity 1.6s ease, visibility 0s 1.6s; background: #050303; }
 #fire.on { opacity: 1; visibility: visible; transition: opacity 1.6s ease, visibility 0s; }
 #fire video { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px; object-fit: cover; }
-/* two copies of the video crossfade at the loop point (fire.js): the one in front fades in over the other */
-#fire video { opacity: 0; }
-#fire video.front { z-index: 2; }
 
 /* while the fireplace shows, the sky underneath stops drawing */
 body.fire #sky { visibility: hidden; }

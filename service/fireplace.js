@@ -10,6 +10,7 @@ const path = require('path');
 const https = require('https');
 const child = require('child_process');
 const config = require('./config');
+const fmp4 = require('./fmp4');
 
 const BASE = process.env.EMZEE_FIRE_URL || 'https://videos.pexels.com/video-files/13270910/13270910-';
 const QUALITIES = [
@@ -38,7 +39,12 @@ const VIDEO_ID = '13270910';
 function status() {
   const meta = config.readJson(META(), {});
   if (exists(FILE()) && meta.video && meta.video !== VIDEO_ID) { try { fs.unlinkSync(FILE()); } catch (e) { /* gone */ } }
-  if (exists(FILE())) return { state: 'ready', quality: meta.quality || '', credit: 'Video: Volodymyr Kostiev, Pexels' };
+  if (exists(FILE())) {
+    const s = { state: 'ready', quality: meta.quality || '', credit: 'Video: Volodymyr Kostiev, Pexels' };
+    // what the page needs to loop it seamlessly (fmp4.js); without it, the page loops the plain file
+    try { const p = fmp4.plan(FILE()); s.loop = { mime: p.mime, duration: p.duration }; } catch (e) { s.loopError = e.message; }
+    return s;
+  }
   if (job) return { state: 'downloading', quality: job.quality.name, progress: job.total ? Math.round(job.got / job.total * 100) : 0 };
   if (meta.error) return { state: 'failed', error: meta.error };
   return { state: 'none' };
@@ -93,6 +99,20 @@ function fail(why) {
   job = null;
 }
 
+// GET /fireplace/init.mp4 and /fireplace/loop.m4s: the video as fragmented MP4, for the seamless loop (fmp4.js)
+function serveFragments(req, res, origin, which) {
+  const file = FILE();
+  if (!exists(file)) { res.writeHead(404); return res.end(); }
+  let p;
+  try { p = fmp4.plan(file); } catch (e) { res.writeHead(500); return res.end(e.message); }
+  const head = { 'content-type': 'video/mp4', 'cache-control': 'no-cache' };
+  if (origin) { head['access-control-allow-origin'] = origin; head.vary = 'Origin'; }
+  if (which === 'init') { head['content-length'] = p.init.length; res.writeHead(200, head); return res.end(p.init); }
+  head['content-length'] = p.length;
+  res.writeHead(200, head);
+  fmp4.stream(file, res);
+}
+
 // GET /fireplace: the video, with range support so the page can stream and loop it. CORS headers too: the page
 // (file://) boosts the sound through Web Audio, which would hear only silence from a cross-origin video without them.
 function serve(req, res, origin) {
@@ -115,4 +135,4 @@ function serve(req, res, origin) {
   fs.createReadStream(file, { start: s, end: e }).pipe(res);
 }
 
-module.exports = { status: status, start: start, serve: serve };
+module.exports = { status: status, start: start, serve: serve, serveFragments: serveFragments };

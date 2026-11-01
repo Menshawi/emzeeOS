@@ -4,144 +4,159 @@
 (function () {
   var rate = 0.9;
   var BOOST = 2.5;   // the clip's crackle is quiet (about -32 dB average, peaks -15 dB): +8 dB, still well clear of clipping
-  var root, running = false;
+  var root, video, running = false;
 
   // The boost runs through Web Audio. Its context may only start after a key press, so it's made on the first
   // press, long before any screen saver; if it isn't running when the fire starts, the video plays its sound as is.
-  var ctx = null, boosted = false;
+  var ctx = null, boosted = false, gain = null;
   document.addEventListener('keydown', function () {
     try {
       if (!ctx) ctx = new (window.AudioContext || window.webkitAudioContext)();
       if (ctx.state === 'suspended') ctx.resume();
     } catch (e) { ctx = null; }
   }, true);
-  var gain = null, wired = [];
-  function boost(v) {
-    if (wired.indexOf(v) >= 0 || !ctx || ctx.state !== 'running') return;
+  function boost() {
+    if (boosted || !ctx || ctx.state !== 'running') return;
     try {
-      if (!gain) { gain = ctx.createGain(); gain.gain.value = BOOST; gain.connect(ctx.destination); }
-      ctx.createMediaElementSource(v).connect(gain);
-      wired.push(v);
+      gain = ctx.createGain();
+      gain.gain.value = BOOST;
+      gain.connect(ctx.destination);
+      ctx.createMediaElementSource(video).connect(gain);
       boosted = true;
     } catch (e) { /* plays unboosted */ }
   }
 
-  // one line in the helper's log on what the sound did, since that can't be seen from here
+  // one line in the helper's log on how it plays, since that can't be seen from here
   function report(how) {
     setTimeout(function () {
       if (!running) return;
-      var v = vids[cur];
-      EZ.api.note('fireplace: ' + how + ', ' + (v.muted ? 'muted' : 'volume ' + Math.round(v.volume * 100) + '%') +
+      EZ.api.note('fireplace: ' + how + ', ' + (video.muted ? 'muted' : 'volume ' + Math.round(video.volume * 100) + '%') +
         (boosted ? ', boosted ' + BOOST + 'x' : ', not boosted (audio ' + (ctx ? ctx.state : 'none') + ')') +
-        ', speed ' + v.playbackRate + 'x, ' + (v.videoWidth || '?') + 'x' + (v.videoHeight || '?') +
-        (v.webkitAudioDecodedByteCount != null ? ', audio bytes ' + v.webkitAudioDecodedByteCount : '') +
-        (crossfade ? ', crossfading loops' : ', plain loop'));
+        ', speed ' + video.playbackRate + 'x, ' + (video.videoWidth || '?') + 'x' + (video.videoHeight || '?') +
+        (video.webkitAudioDecodedByteCount != null ? ', audio bytes ' + video.webkitAudioDecodedByteCount : '') +
+        ', ' + (mse ? 'seamless loop' : 'plain loop' + (why ? ' (' + why + ')' : '')));
     }, 3000);
   }
 
-  // The loop. A plain <video loop> seeks back to the start and stalls for a moment, so there are two copies of
-  // the video: a little before one ends, the other starts from the beginning on top and fades in over it (the
-  // crackle crossfades too), then the first is paused and rewound, ready for next time. If the TV can't play the
-  // second copy, the first simply loops.
-  var FADE = 1.2;   // seconds
-  var vids = [], cur = 0, crossfade = true, crossing = false, watchTimer = 0, quietNow = false;
-  var cors = true;   // fetched with CORS so Web Audio may boost them; if that fails, they load plainly, unboosted
+  // ---- the loop ----
+  // A plain <video loop> seeks back to the start and stalls at the loop point, and the TV can't decode a second 4K
+  // copy to crossfade over it (that showed black). So the video is fed through Media Source Extensions: the helper
+  // serves the clip as fragmented MP4 (service/fmp4.js), and the same clip is appended again and again, each copy
+  // starting exactly where the last one ends, into one video element and one decoder: one continuous stream.
+  // Copies already played are removed, so at most about two are held. If anything fails, the plain loop takes over.
+  var AHEAD = 8;   // seconds of fire left in the buffer when the next copy is fetched
+  var mse = null, why = '', loopTimer = 0;   // mse: { ms, sb, info, next, busy }
 
-  function load(v) {
-    if (cors) v.crossOrigin = 'anonymous'; else v.removeAttribute('crossorigin');
-    v.loop = !crossfade;
-    v.preload = 'auto';
-    v.src = EZ.api.fireplaceUrl();
-    v.onerror = function () { failed(v); };
-  }
-  function failed(v) {
-    if (cors && !boosted) {
-      cors = false;
-      EZ.api.note('fireplace: the video would not load with CORS, playing it unboosted');
-      vids.forEach(function (x) { x.removeAttribute('src'); x.load(); });
-      if (running) play(quietNow);
-      return;
-    }
-    if (v !== vids[cur] && crossfade) { single('the second copy would not load'); return; }
-    stop();
-  }
-  // back to one copy, looping by itself
-  function single(why) {
-    if (!crossfade) return;
-    crossfade = false;
-    EZ.api.note('fireplace: ' + why + ', looping one copy instead');
-    var v = vids[cur], o = vids[1 - cur];
-    v.loop = true; v.classList.add('front'); v.style.opacity = 1; v.volume = 1;
-    o.pause(); o.style.opacity = 0;
+  function get(url, cb) {
+    var x = new XMLHttpRequest();
+    x.open('GET', url);
+    x.responseType = 'arraybuffer';
+    x.timeout = 30000;
+    x.onload = function () { if (x.status === 200) cb(null, x.response); else cb(new Error('helper ' + x.status)); };
+    x.onerror = x.ontimeout = function () { cb(new Error('helper unreachable')); };
+    x.send();
   }
 
-  function watch() {
-    clearTimeout(watchTimer);
-    if (!running) return;
-    var v = vids[cur];
-    if (crossfade && !crossing && v.duration && !v.paused) {
-      var left = (v.duration - v.currentTime) / (v.playbackRate || 1);
-      if (left <= FADE + 0.25) cross();
-    }
-    watchTimer = setTimeout(watch, 200);
+  function plain(reason) {
+    why = reason || why;
+    if (mse) { try { URL.revokeObjectURL(video.src); } catch (e) { /* gone */ } }
+    mse = null;
+    clearTimeout(loopTimer);
+    EZ.api.note('fireplace: plain loop, ' + why);
+    video.loop = true;
+    video.src = EZ.api.fireplaceUrl();
+    if (running) video.play().catch(stop);
   }
 
-  function cross() {
-    var from = vids[cur], to = vids[1 - cur];
-    crossing = true;
-    to.muted = from.muted;
-    to.volume = 0;
-    to.defaultPlaybackRate = rate; to.playbackRate = rate;
-    // the incoming copy goes on top, invisible, and fades in once it is really playing
-    to.style.transition = 'none'; to.style.opacity = 0;
-    to.classList.add('front'); from.classList.remove('front');
-    var p = to.play();
-    (p && p.then ? p : Promise.resolve()).then(function () {
-      if (!running) { crossing = false; return; }
-      if (!to.muted && cors) boost(to);
-      void to.offsetWidth;
-      to.style.transition = 'opacity ' + FADE + 's linear';
-      to.style.opacity = 1;
-      if (!measured) { measured = true; EZ.perf('fireplace crossfade', FADE * 1000); }
-      var steps = 12, n = 0;
-      (function ramp() {
-        if (!running) return;
-        n++;
-        to.volume = Math.min(1, n / steps); from.volume = Math.max(0, 1 - n / steps);
-        if (n < steps) return setTimeout(ramp, FADE * 1000 / steps);
-        from.pause(); from.currentTime = 0;   // rewound under the new one, ready for the next loop
-        cur = 1 - cur; crossing = false;
-      })();
-    }, function (e) {
-      crossing = false;
-      to.classList.remove('front'); from.classList.add('front'); to.style.opacity = 0;
-      single('the second copy would not play (' + (e && e.name) + ')');
-      // the first copy is near its end: let it carry on round by itself
-      if (from.ended) from.play().catch(stop);
+  // starts the stream; false when this TV can't, and the plain file plays instead
+  function seamless(info) {
+    if (!info || !window.MediaSource || !MediaSource.isTypeSupported(info.mime)) { why = info ? 'no MSE for ' + info.mime : 'no loop info'; return false; }
+    var ms = new MediaSource();
+    mse = { ms: ms, sb: null, info: info, next: 0, busy: true };
+    video.loop = false;
+    video.src = URL.createObjectURL(ms);
+    ms.addEventListener('sourceopen', function () {
+      var m = mse;
+      if (!m || m.ms !== ms) return;
+      try { m.sb = ms.addSourceBuffer(info.mime); m.sb.mode = 'segments'; } catch (e) { return plain('addSourceBuffer: ' + e.name); }
+      get(EZ.api.fireplaceUrl() + '/init.mp4', function (err, data) {
+        if (err) return plain('init: ' + err.message);
+        append(m, data, function (e2) {
+          if (e2) return plain('init: ' + e2);
+          m.busy = false;
+          feed();
+        });
+      });
+    });
+    return true;
+  }
+
+  // appendBuffer, waiting for it to finish
+  function append(m, data, cb) {
+    var sb = m.sb;
+    function end() { sb.removeEventListener('updateend', end); sb.removeEventListener('error', fail); cb(null); }
+    function fail() { sb.removeEventListener('updateend', end); sb.removeEventListener('error', fail); cb('append failed'); }
+    sb.addEventListener('updateend', end);
+    sb.addEventListener('error', fail);
+    try { sb.appendBuffer(data); } catch (e) { fail(); cb = function () {}; return e.name; }
+  }
+  function remove(m, to, cb) {
+    var sb = m.sb, b = sb.buffered;
+    if (!b.length || to - b.start(0) < 1) return cb();
+    function end() { sb.removeEventListener('updateend', end); cb(); }
+    sb.addEventListener('updateend', end);
+    try { sb.remove(b.start(0), to); } catch (e) { sb.removeEventListener('updateend', end); cb(); }
+  }
+
+  // keeps the stream topped up: the next copy goes in while about AHEAD seconds of the current one remain
+  function feed() {
+    clearTimeout(loopTimer);
+    var m = mse;
+    if (!m || !running) return;
+    loopTimer = setTimeout(feed, 500);
+    if (m.busy || !m.sb) return;
+    var b = m.sb.buffered, end = b.length ? b.end(b.length - 1) : 0;
+    if (m.next > 0 && end - video.currentTime > AHEAD) return;
+    m.busy = true;
+    var n = m.next;
+    get(EZ.api.fireplaceUrl() + '/loop.m4s', function (err, data) {
+      if (mse !== m) return;
+      if (err) { m.busy = false; return n === 0 ? plain('first copy: ' + err.message) : null; }   // later copies retry
+      // what has played goes first, so the buffer never holds more than about two copies
+      remove(m, video.currentTime - 2, function () {
+        if (mse !== m) return;
+        m.sb.timestampOffset = n * m.info.duration;
+        append(m, data, function (e) {
+          if (mse !== m) return;
+          if (e) return plain('copy ' + n + ': ' + e);
+          m.next = n + 1;
+          m.busy = false;
+          if (n === 0 && m.sb.buffered.length) video.currentTime = m.sb.buffered.start(0);
+          if (n === 1) EZ.perf('fireplace loop point', 2500);   // measured around the first join, for the log
+        });
+      });
     });
   }
-  var measured = false;
 
   // the real fire, with or without its crackle; if it can't play, the sky screen saver stays
-  function play(quiet) {
-    quietNow = !!quiet;
-    vids.forEach(function (v) { if (!v.getAttribute('src')) load(v); v.defaultPlaybackRate = rate; v.playbackRate = rate; v.muted = quietNow; });
-    var v = vids[cur];
-    v.volume = 1; v.style.transition = 'none'; v.style.opacity = 1; v.classList.add('front');
-    vids[1 - cur].classList.remove('front');
-    var p = v.play();
+  function play(quiet, info) {
+    if (!video.getAttribute('src') && !seamless(info)) { video.loop = true; video.src = EZ.api.fireplaceUrl(); }
+    video.muted = !!quiet;
+    video.volume = 1;
+    video.defaultPlaybackRate = rate; video.playbackRate = rate;
+    video.onerror = function () { if (mse) plain('video error ' + (video.error && video.error.code)); else stop(); };
+    var p = video.play();
     if (p && p.then) p.then(function () {
-      if (!quiet && cors) vids.forEach(boost);
+      if (!quiet) boost();
       report(quiet ? 'silent style' : 'playing with sound');
     }, function (e) {
-      if (e && e.name === 'AbortError') return;   // the source changed under it (the CORS fallback above)
+      if (e && e.name === 'AbortError') return;   // the source changed under it (the plain fallback)
       // sound not allowed to start on its own: play silently rather than not at all
       report('sound blocked by the TV (' + (e && e.name) + ')');
-      quietNow = true;
-      vids.forEach(function (x) { x.muted = true; });
-      v.play().catch(stop);
+      video.muted = true;
+      video.play().catch(stop);
     });
-    watch();
+    if (mse) feed();
     document.body.classList.add('fire');
     root.classList.add('on');
     // a sample of how smoothly it plays, for the helper's log
@@ -151,24 +166,20 @@
   function stop() {
     if (!running) return;
     running = false;
-    clearTimeout(watchTimer);
-    crossing = false;
+    clearTimeout(loopTimer);
     document.body.classList.remove('fire');
     root.classList.remove('on');
-    // the crackle fades out with the picture instead of cutting off
-    var steps = 12;
-    (function fade() {
-      if (running) return;
-      vids.forEach(function (v) { v.volume = Math.max(0, v.volume - 0.09); });
-      if (--steps > 0) return setTimeout(fade, 100);
-      vids.forEach(function (v, i) { v.pause(); if (i !== cur) v.currentTime = 0; });
-    })();
+    if (!video.paused) {
+      // the crackle fades out with the picture instead of cutting off
+      var steps = 12;
+      (function fade() { if (running) return; video.volume = Math.max(0, video.volume - 0.09); if (--steps > 0) setTimeout(fade, 100); else video.pause(); })();
+    }
   }
 
   // a new speed from Settings applies straight away, even while the fire is playing
   function setRate(c) {
     rate = Math.min(1, Math.max(0.5, Number(c.fireSpeed) || 0.9));
-    vids.forEach(function (v) { v.defaultPlaybackRate = rate; v.playbackRate = rate; });
+    if (video) { video.defaultPlaybackRate = rate; video.playbackRate = rate; }
   }
   EZ.on('config', setRate);
 
@@ -177,19 +188,13 @@
     // resolves true once the fire is showing, false when the sky screen saver should stay
     start: function (saver) {
       if (running) return Promise.resolve(true);
-      if (!root) {
-        root = EZ.$('#fire');
-        var a = EZ.$('#fire-video'), b = a.cloneNode(false);
-        b.id = 'fire-video-2';
-        root.appendChild(b);
-        vids = [a, b];
-      }
+      root = root || EZ.$('#fire'); video = video || EZ.$('#fire-video');
       running = true;
       return Promise.all([EZ.api.fireplace(), EZ.api.config()]).then(function (r) {
         var s = r[0];
         setRate(r[1]);
         if (!running) return false;
-        if (s.state === 'ready') { play(saver === 'fire-quiet'); return true; }
+        if (s.state === 'ready') { play(saver === 'fire-quiet', s.loop); return true; }
         // not on the TV yet: the sky shows meanwhile, and the video is fetched for next time
         running = false;
         if (s.state !== 'downloading') EZ.api.fireplaceStart();

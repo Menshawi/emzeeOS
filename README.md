@@ -24,6 +24,19 @@ LG's Home screen is full of ads and bright tiles, and it does nothing to protect
 - **Fireplace.** A crackling 4K fire that loops with no seam.
 - **Safe to try.** Only writes to `/media/developer/emzee`, the takeover lasts until reboot, a failsafe returns LG's Home if emzeeOS doesn't start, and one button gives LG's Home back.
 
+## Screenshots
+
+Captured from the desktop preview (`tools/preview.sh`) with demo data.
+
+<p align="center">
+  <img src="docs/media/home-dusk.jpg" alt="Dusk: the sky turns purple as the sun sets" width="48%">
+  <img src="docs/media/home-night.jpg" alt="Night: stars and the real moon phase" width="48%">
+</p>
+<p align="center">
+  <img src="docs/media/home-day.jpg" alt="Daytime Home with the dock" width="48%">
+  <img src="docs/media/home-rain.jpg" alt="Rain falling over the sky" width="48%">
+</p>
+
 ## Install in three steps
 
 You need a TV rooted with [Homebrew Channel](https://github.com/webosbrew/webos-homebrew-channel) (running as root) and a Mac or Linux machine on the same network.

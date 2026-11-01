@@ -5,7 +5,11 @@ A calm, minimal Home screen for rooted LG OLED TVs (webOS). It shows a live sky 
 Built and used on an LG OLED77C26LD (C2) running webOS 25. Other models are untested.
 
 > [!WARNING]
-> emzee replaces LG's Home screen on a **rooted** TV, using root through Homebrew Channel. Rooting may void your warranty, and running root code on your TV is at your own risk. emzee only ever writes to `/media/developer/emzee`, its bind mount lasts until the next reboot, and a failsafe brings LG's Home back if emzee doesn't start, but there is no guarantee. It comes with no warranty; see [LICENSE](LICENSE).
+> **Use at your own risk.** emzee replaces LG's Home screen on a **rooted** TV, using root through Homebrew Channel. Rooting your TV and running root code on it can void your warranty and, in the worst case, leave the TV unusable.
+>
+> emzee is provided "as is", without warranty of any kind (see [LICENSE](LICENSE)). By installing it, you accept full responsibility for your TV. The author is not liable for any damage, data loss, voided warranty or other harm arising from its use.
+>
+> emzee takes care to be safe: it only ever writes to `/media/developer/emzee`, its bind mount lasts until the next reboot, and a failsafe brings LG's Home back if emzee doesn't start. But none of this is a guarantee.
 >
 > emzee is an independent project. It is not affiliated with or endorsed by LG Electronics. "LG" and "webOS" are trademarks of their owners.
 
